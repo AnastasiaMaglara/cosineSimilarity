@@ -14,7 +14,24 @@ COSINE_DISTANCE_UNCOMPUTABLE = np.NaN
 
 weights = [0.7, 0.2, 0.1]
 
+def weightedCosineSim(x, y):
+    count = 0
+    x_array=[]
+    y_array=[]
+    for i in x:
+        if i in y:
+            count += 1
+            x_array+=x[i]
+            y_array+=y[i]
 
+    weightsOfParameters = []
+    for i in range(int(len(x_array)/NUM_OF_PARAMETERS)):
+        weightsOfParameters = np.concatenate((weightsOfParameters, weights))
+
+    if count == 0 :
+        return COSINE_DISTANCE_UNCOMPUTABLE
+    else:
+        return 1 - spatial.distance.cosine(scale(x_array), scale(y_array), weightsOfParameters)
 
 def scale(x):
     vector= []
@@ -51,30 +68,10 @@ for i in range(0, NUM_OF_USERS):
    avgUserRatings.insert(i, avgRating(ratings[i]))
 print(avgUserRatings)
 
-def weightedCosineSim(x, y):
-    count = 0
-    x_array=[]
-    y_array=[]
-    for i in x:
-        if i in y:
-            count += 1
-            x_array+=x[i]
-            y_array+=y[i]
-
-    weightsOfParameters = []
-    for i in range(int(len(x_array)/NUM_OF_PARAMETERS)):
-        weightsOfParameters = np.concatenate((weightsOfParameters, weights))
-
-    if count == 0 :
-        return COSINE_DISTANCE_UNCOMPUTABLE
-    else:
-        return 1 - spatial.distance.cosine(scale(x_array), scale(y_array), weightsOfParameters)
-
 sim=pd.DataFrame(columns=df.columns, index=df.columns)
 for i in range(0, NUM_OF_USERS):
      for j in range(0, NUM_OF_USERS):
          sim[i][j] = weightedCosineSim(ratings[i],ratings[j])
-print(weightedCosineSim(ratings[1], ratings[2]))
 
 print(sim)
 #print(prediction.predictRatingPearson(ratings, avgUserRatings, sim , NUM_OF_USERS, 2, 20))
